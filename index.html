@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAS Study Notes – Chapters 5 & 6</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161922;
+    --surface2: #1e222d;
+    --border: #2a2f3d;
+    --accent: #00d4aa;
+    --accent2: #ff6b6b;
+    --accent3: #ffd166;
+    --accent4: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --code-bg: #0a0c10;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #0d0f14 0%, #1a1040 50%, #0d0f14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 5%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    opacity: 0.9;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 400;
+    max-width: 500px;
+  }
+  .chapter-pills {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .pill-5 { background: rgba(0,212,170,0.12); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
+  .pill-6 { background: rgba(167,139,250,0.12); color: var(--accent4); border: 1px solid rgba(167,139,250,0.3); }
+
+  /* NAV */
+  .toc {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .toc-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 6px;
+  }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .toc a:hover { background: var(--surface2); color: var(--text); }
+
+  /* MAIN LAYOUT */
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+
+  /* CHAPTER HEADERS */
+  .chapter-header {
+    margin: 60px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .chapter-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .badge-5 { background: rgba(0,212,170,0.15); color: var(--accent); }
+  .badge-6 { background: rgba(167,139,250,0.15); color: var(--accent4); }
+  .chapter-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .chapter-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+    margin-bottom: 36px;
+  }
+
+  /* PROC CARDS */
+  .proc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .proc-card:hover { border-color: #3a3f52; }
+
+  .proc-card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .proc-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .proc-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .icon-teal { background: rgba(0,212,170,0.15); }
+  .icon-red { background: rgba(255,107,107,0.15); }
+  .icon-yellow { background: rgba(255,209,102,0.15); }
+  .icon-purple { background: rgba(167,139,250,0.15); }
+
+  .proc-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .proc-tagline {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .use-case-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+  .uc-format { background: rgba(0,212,170,0.1); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
+  .uc-output { background: rgba(255,209,102,0.1); color: var(--accent3); border: 1px solid rgba(255,209,102,0.2); }
+  .uc-stats  { background: rgba(167,139,250,0.1); color: var(--accent4); border: 1px solid rgba(167,139,250,0.2); }
+  .uc-dist   { background: rgba(255,107,107,0.1); color: var(--accent2); border: 1px solid rgba(255,107,107,0.2); }
+
+  .proc-body { padding: 20px 24px 24px; }
+
+  /* TWO COLUMN LAYOUT */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  @media(max-width: 700px){ .two-col { grid-template-columns: 1fr; } }
+
+  .info-block {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .info-block-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .info-block ul { list-style: none; }
+  .info-block li {
+    font-size: 13.5px;
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--text);
+  }
+  .info-block li::before {
+    content: '›';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .info-block li strong {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent3);
+  }
+
+  /* CODE BLOCKS */
+  .code-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .kw { color: #79c0ff; }   /* keyword */
+  .fn { color: #00d4aa; }   /* proc/function */
+  .opt { color: #ffd166; }  /* option/parameter */
+  .val { color: #a78bfa; }  /* value/string */
+  .cmt { color: #526173; font-style: italic; } /* comment */
+  .eq  { color: #ff6b6b; }  /* = sign / operator */
+
+  /* OPTIONS TABLE */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .opt-item {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    border-left: 2px solid transparent;
+  }
+  .opt-item.teal { border-left-color: var(--accent); }
+  .opt-item.yellow { border-left-color: var(--accent3); }
+  .opt-item.purple { border-left-color: var(--accent4); }
+  .opt-item.red { border-left-color: var(--accent2); }
+  .opt-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent3);
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .opt-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13.5px;
+  }
+  .callout-tip { background: rgba(0,212,170,0.07); border: 1px solid rgba(0,212,170,0.2); }
+  .callout-warn { background: rgba(255,209,102,0.07); border: 1px solid rgba(255,209,102,0.2); }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout p { line-height: 1.55; color: var(--muted); }
+  .callout p strong { color: var(--text); }
+
+  /* SECTION DIVIDERS */
+  .section-gap { height: 20px; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 70px;
+    padding: 30px 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container" style="max-width:1000px;margin:0 auto;">
+    <div class="hero-tag">// SAS Programming · Study Notes</div>
+    <h1>SAS <span>Procedures</span><br>& Quantitative Analysis</h1>
+    <p class="hero-sub">Syntax, options, use cases and code examples for Chapters 5 and 6.</p>
+    <div class="chapter-pills">
+      <span class="pill pill-5">Chapter 5 — SAS Procedures</span>
+      <span class="pill pill-6">Chapter 6 — Evaluating Quantitative Data</span>
+    </div>
+  </div>
+</div>
+
+<!-- STICKY NAV -->
+<nav class="toc">
+  <span class="toc-label">Jump to:</span>
+  <a href="#ch5">Ch. 5</a>
+  <a href="#proc-format">PROC FORMAT</a>
+  <a href="#proc-print">PROC PRINT</a>
+  <a href="#ods">ODS</a>
+  <a href="#title-footnote">TITLE / FOOTNOTE</a>
+  <a href="#comments">Comments</a>
+  <a href="#ch6">Ch. 6</a>
+  <a href="#proc-means">PROC MEANS</a>
+  <a href="#proc-univariate">PROC UNIVARIATE</a>
+</nav>
+
+<div class="container">
+
+  <!-- ───────── CHAPTER 5 ───────── -->
+  <div id="ch5" class="chapter-header">
+    <span class="chapter-badge badge-5">Chapter 5</span>
+    <h2>SAS Procedures</h2>
+  </div>
+  <div class="chapter-divider"></div>
+
+
+  <!-- PROC FORMAT -->
+  <div id="proc-format" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-teal">🏷</div>
+        <div>
+          <div class="proc-name">PROC FORMAT</div>
+          <div class="proc-tagline">Relabel coded values for display without altering raw data</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-format">Formatting</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">What it does</div>
+          <ul>
+            <li>Changes how values are <em>displayed</em>, not stored</li>
+            <li>Maps numeric or character codes → readable labels</li>
+            <li>Formats are defined once and recalled in PROC PRINT</li>
+            <li>Apply to a single variable or a range</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">Use cases</div>
+          <ul>
+            <li>Show <strong>YES/NO</strong> instead of 1/0 for a MARRIED variable</li>
+            <li>Show <strong>FEMALE/MALE</strong> instead of F/M for GENDER</li>
+            <li>Display meaningful labels in reports &amp; outputs</li>
+            <li>Avoid manual recoding of raw data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Numeric format example</div>
+      <pre><span class="cmt">/* Define a format for a numeric variable */</span>
+<span class="kw">PROC FORMAT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA;
+  <span class="kw">VALUE</span> <span class="fn">FMTMARRIED</span>  <span class="val">0</span> <span class="eq">=</span> <span class="val">"NO"</span>
+                     <span class="val">1</span> <span class="eq">=</span> <span class="val">"YES"</span>;
+<span class="kw">RUN</span>;
+
+<span class="cmt">/* Apply format in PROC PRINT */</span>
+<span class="kw">ODS HTML</span>;
+<span class="kw">PROC PRINT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA;
+  <span class="kw">FORMAT</span> MARRIED <span class="fn">FMTMARRIED.</span>;
+<span class="kw">RUN</span>;
+<span class="kw">ODS HTML CLOSE</span>;</pre>
+
+      <div class="code-label">Character format example</div>
+      <pre><span class="cmt">/* $ prefix required for character variable formats */</span>
+<span class="kw">PROC FORMAT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA;
+  <span class="kw">VALUE</span> <span class="fn">$FMTGENDER</span>  <span class="val">"F"</span> <span class="eq">=</span> <span class="val">"FEMALE"</span>
+                     <span class="val">"M"</span> <span class="eq">=</span> <span class="val">"MALE"</span>;
+<span class="kw">RUN</span>;
+
+<span class="kw">ODS HTML</span>;
+<span class="kw">PROC PRINT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA;
+  <span class="kw">FORMAT</span> GENDER <span class="fn">$FMTGENDER.</span>;
+<span class="kw">RUN</span>;
+<span class="kw">ODS HTML CLOSE</span>;</pre>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Remember:</strong> numeric format names have <em>no</em> dollar sign; character format names <em>always</em> start with <strong>$</strong>. Also, when calling the format, always end with a period (<code>FMTMARRIED.</code>).</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PROC PRINT -->
+  <div id="proc-print" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-yellow">🖨</div>
+        <div>
+          <div class="proc-name">PROC PRINT (Modified)</div>
+          <div class="proc-tagline">Control the look and content of printed output</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-output">Output</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="options-grid">
+        <div class="opt-item yellow">
+          <div class="opt-key">DOUBLE</div>
+          <div class="opt-desc">Double-spaces the printed output rows</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">LABEL</div>
+          <div class="opt-desc">Displays variable labels as column headers</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">N = "text"</div>
+          <div class="opt-desc">Adds a heading &amp; total count of observations</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">OBS = "text"</div>
+          <div class="opt-desc">Custom label for the observation number column</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">ROUND</div>
+          <div class="opt-desc">Rounds numeric values before printing</div>
+        </div>
+      </div>
+
+      <div class="code-label">PROC PRINT with options</div>
+      <pre><span class="kw">ODS HTML</span>;
+<span class="kw">PROC PRINT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA
+           <span class="opt">DOUBLE</span>
+           <span class="opt">LABEL</span>
+           <span class="opt">N</span><span class="eq">=</span><span class="val">"Total observations:"</span>
+           <span class="opt">OBS</span><span class="eq">=</span><span class="val">"Record #"</span>
+           <span class="opt">ROUND</span>;
+<span class="kw">RUN</span>;
+<span class="kw">ODS HTML CLOSE</span>;</pre>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">📌</span>
+        <p>Options go in the <strong>PROC statement</strong> after the data set name, before the semicolon. Reference file: <code>APRINT1.SAS</code></p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ODS -->
+  <div id="ods" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-teal">📤</div>
+        <div>
+          <div class="proc-name">ODS — Output Delivery System</div>
+          <div class="proc-tagline">Export and style SAS output to HTML, PDF, RTF and more</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-output">Output</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">How it works</div>
+          <ul>
+            <li>Wrap target code between <strong>ODS … ;</strong> and <strong>ODS … CLOSE;</strong></li>
+            <li>HTML is the default from SAS 9.4 onwards</li>
+            <li>Replace HTML with <strong>PDF</strong>, <strong>RTF</strong>, etc. for other formats</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">Destination options</div>
+          <ul>
+            <li><strong>HTML</strong> — browser-viewable, default</li>
+            <li><strong>PDF</strong> — printable document</li>
+            <li><strong>RTF</strong> — Word-compatible rich text</li>
+            <li><strong>LISTING</strong> — plain text / classic SAS output</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">ODS template</div>
+      <pre><span class="cmt">/* Wrap any PROC in ODS to enhance its output */</span>
+<span class="kw">ODS HTML</span>;              <span class="cmt">/* open HTML destination */</span>
+
+<span class="kw">PROC PRINT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA;
+  <span class="kw">FORMAT</span> MARRIED <span class="fn">FMTMARRIED.</span>;
+<span class="kw">RUN</span>;
+
+<span class="kw">ODS HTML CLOSE</span>;        <span class="cmt">/* close — must always close! */</span>
+
+<span class="cmt">/* To produce a PDF instead: */</span>
+<span class="kw">ODS PDF</span>;
+  <span class="cmt">/* ... proc code ... */</span>
+<span class="kw">ODS PDF CLOSE</span>;</pre>
+    </div>
+  </div>
+
+
+  <!-- TITLE & FOOTNOTE -->
+  <div id="title-footnote" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-yellow">📝</div>
+        <div>
+          <div class="proc-name">TITLE &amp; FOOTNOTE Statements</div>
+          <div class="proc-tagline">Add descriptive text to the top or bottom of output</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-output">Output</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">TITLE</div>
+          <ul>
+            <li>Appears at the <em>top</em> of each output page</li>
+            <li>Supports up to <strong>TITLE10</strong> (numbered)</li>
+            <li>Declare without text to <em>delete</em> the title</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">FOOTNOTE</div>
+          <ul>
+            <li>Appears at the <em>bottom</em> of each output page</li>
+            <li>Supports up to <strong>FOOTNOTE10</strong> (numbered)</li>
+            <li>Declare without text to <em>delete</em> the footnote</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Usage</div>
+      <pre><span class="kw">TITLE</span> <span class="val">"Employee Survey Results 2024"</span>;
+<span class="kw">TITLE2</span> <span class="val">"Subset: Department A"</span>;
+<span class="kw">FOOTNOTE</span> <span class="val">"Source: HR Database"</span>;
+
+<span class="kw">PROC PRINT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA; <span class="kw">RUN</span>;
+
+<span class="cmt">/* Clear titles and footnotes after use */</span>
+<span class="kw">TITLE</span>;
+<span class="kw">FOOTNOTE</span>;</pre>
+    </div>
+  </div>
+
+
+  <!-- COMMENTS -->
+  <div id="comments" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-purple">💬</div>
+        <div>
+          <div class="proc-name">Comments in SAS Code</div>
+          <div class="proc-tagline">Annotate your programs for clarity and documentation</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-format">Syntax</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">Block comment /* … */</div>
+          <ul>
+            <li>Can span multiple lines</li>
+            <li>Useful for commenting out entire sections</li>
+            <li>Cannot be nested inside each other</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">Statement comment * … ;</div>
+          <ul>
+            <li>Starts with <strong>*</strong> and ends with <strong>;</strong></li>
+            <li>Single line or multi-line</li>
+            <li>Must appear where a SAS statement can go</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Both comment styles</div>
+      <pre><span class="cmt">/* This is a block comment.
+   It can span multiple lines.
+   SAS ignores everything inside. */</span>
+
+<span class="cmt">* This is a statement comment;</span>
+<span class="cmt">* Another statement comment on its own line;</span>
+
+<span class="kw">DATA</span> MYDATA;
+  <span class="cmt">/* Inline comment explaining a step */</span>
+  <span class="kw">SET</span> RAWDATA;
+<span class="kw">RUN</span>;</pre>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">🟢</span>
+        <p>In the SAS editor, all commented text appears in <strong>green</strong>. Use this as a visual cue that your comment syntax is correct.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ───────── CHAPTER 6 ───────── -->
+  <div id="ch6" class="chapter-header" style="margin-top:70px;">
+    <span class="chapter-badge badge-6">Chapter 6</span>
+    <h2>Evaluating Quantitative Data</h2>
+  </div>
+  <div class="chapter-divider"></div>
+
+
+  <!-- PROC MEANS -->
+  <div id="proc-means" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-purple">📊</div>
+        <div>
+          <div class="proc-name">PROC MEANS</div>
+          <div class="proc-tagline">Descriptive statistics for quantitative (numeric) variables</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-stats">Statistics</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">What it does</div>
+          <ul>
+            <li>Evaluates quantitative/numerical data</li>
+            <li>Defines means by groups (BY / CLASS)</li>
+            <li>Helps spot outliers quickly</li>
+            <li>Produces a simple statistical summary report</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">Default statistics produced</div>
+          <ul>
+            <li><strong>N</strong> — number of observations</li>
+            <li><strong>MEAN</strong> — arithmetic average</li>
+            <li><strong>STD</strong> — standard deviation</li>
+            <li><strong>MIN</strong> — minimum value</li>
+            <li><strong>MAX</strong> — maximum value</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Full syntax reference</div>
+      <pre><span class="kw">PROC MEANS</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA  <span class="opt">MAXDEC</span><span class="eq">=</span><span class="val">2</span>
+           <span class="opt">N MEAN STD MIN MAX MEDIAN RANGE SUM</span>;
+  <span class="kw">VAR</span>   variable1 variable2;      <span class="cmt">/* variables to analyse */</span>
+  <span class="kw">BY</span>    GroupVar;                  <span class="cmt">/* must be pre-sorted */</span>
+  <span class="cmt">/* OR */</span>
+  <span class="kw">CLASS</span> GroupVar;                  <span class="cmt">/* no pre-sort needed */</span>
+<span class="kw">RUN</span>;</pre>
+
+      <div class="code-label">Options (PROC statement)</div>
+      <div class="options-grid">
+        <div class="opt-item purple">
+          <div class="opt-key">DATA =</div>
+          <div class="opt-desc">Specifies the input dataset</div>
+        </div>
+        <div class="opt-item purple">
+          <div class="opt-key">MAXDEC = n</div>
+          <div class="opt-desc">Number of decimal places in output</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">N</div>
+          <div class="opt-desc">Count of non-missing observations</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">NMISS</div>
+          <div class="opt-desc">Count of <em>missing</em> observations</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">MEAN</div>
+          <div class="opt-desc">Arithmetic average</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">STD</div>
+          <div class="opt-desc">Standard deviation</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">MIN / MAX</div>
+          <div class="opt-desc">Minimum and maximum values</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">RANGE</div>
+          <div class="opt-desc">MAX − MIN</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">SUM</div>
+          <div class="opt-desc">Total sum of all values</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">VAR</div>
+          <div class="opt-desc">Variance (STD²)</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">STDERR</div>
+          <div class="opt-desc">Standard error of the mean</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">MEDIAN</div>
+          <div class="opt-desc">Middle value (50th percentile)</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">CLM</div>
+          <div class="opt-desc">Confidence limits for the mean</div>
+        </div>
+      </div>
+
+      <div class="code-label">BY vs CLASS statement</div>
+      <pre><span class="cmt">/* ── BY: dataset must be pre-sorted ── */</span>
+<span class="kw">PROC SORT</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA; <span class="kw">BY</span> GENDER; <span class="kw">RUN</span>;
+
+<span class="kw">PROC MEANS</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA <span class="opt">MEAN STD</span>;
+  <span class="kw">VAR</span> AGE SALARY;
+  <span class="kw">BY</span> GENDER;         <span class="cmt">/* one table per GENDER value */</span>
+<span class="kw">RUN</span>;
+
+<span class="cmt">/* ── CLASS: no pre-sorting required ── */</span>
+<span class="kw">PROC MEANS</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA <span class="opt">MEAN STD</span>;
+  <span class="kw">VAR</span> AGE SALARY;
+  <span class="kw">CLASS</span> GENDER;      <span class="cmt">/* groups data by GENDER automatically */</span>
+<span class="kw">RUN</span>;</pre>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>BY vs CLASS:</strong> Use <strong>BY</strong> when your data is already sorted (or you PROC SORT first). Use <strong>CLASS</strong> for convenience — it handles grouping without sorting, and produces a single consolidated table. Reference files: <code>AMEANS.1.SAS</code>, <code>AMEANS.2.SAS</code></p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PROC UNIVARIATE -->
+  <div id="proc-univariate" class="proc-card">
+    <div class="proc-card-header">
+      <div class="proc-title">
+        <div class="proc-icon icon-red">📈</div>
+        <div>
+          <div class="proc-name">PROC UNIVARIATE</div>
+          <div class="proc-tagline">Advanced distribution analysis, normality testing and graphical plots</div>
+        </div>
+      </div>
+      <span class="use-case-badge uc-dist">Distribution</span>
+    </div>
+    <div class="proc-body">
+
+      <div class="two-col">
+        <div class="info-block">
+          <div class="info-block-title">What it does</div>
+          <ul>
+            <li>Tests whether data is <em>normally distributed</em></li>
+            <li>Identifies outliers in the data</li>
+            <li>Produces histograms, box plots, probability plots</li>
+            <li>Compares distributions across groups</li>
+          </ul>
+        </div>
+        <div class="info-block">
+          <div class="info-block-title">Key output metrics</div>
+          <ul>
+            <li><strong>Skewness</strong> — symmetry (should be ≈ 0)</li>
+            <li><strong>Kurtosis</strong> — shape (should be = 0)</li>
+            <li>Positive kurtosis → more peaked than normal</li>
+            <li>Negative kurtosis → flatter than normal</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Full syntax reference</div>
+      <pre><span class="kw">PROC UNIVARIATE</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA  <span class="opt">NORMAL  PLOT</span>;
+  <span class="kw">VAR</span>       variable1 variable2;
+  <span class="kw">HISTOGRAM</span> variable1 <span class="opt">/ NORMAL(COLOR</span><span class="eq">=</span><span class="val">RED</span> <span class="opt">W</span><span class="eq">=</span><span class="val">2</span><span class="opt">)</span>;
+  <span class="kw">QQPLOT</span>    variable1;
+  <span class="kw">PROBPLOT</span>  variable1;
+  <span class="kw">INSET</span>     MEAN STD <span class="opt">/ FORMAT</span><span class="eq">=</span><span class="val">(4.0)</span>;
+<span class="kw">RUN</span>;</pre>
+
+      <div class="code-label">PROC statement options</div>
+      <div class="options-grid">
+        <div class="opt-item red">
+          <div class="opt-key">DATA =</div>
+          <div class="opt-desc">Input dataset to analyse</div>
+        </div>
+        <div class="opt-item red">
+          <div class="opt-key">NORMAL</div>
+          <div class="opt-desc">Adds normality test table (Shapiro-Wilk etc.)</div>
+        </div>
+        <div class="opt-item red">
+          <div class="opt-key">PLOT</div>
+          <div class="opt-desc">Produces stem-and-leaf, box &amp; probability plots</div>
+        </div>
+        <div class="opt-item red">
+          <div class="opt-key">TRIMMED</div>
+          <div class="opt-desc">Trims top &amp; bottom before computing the mean</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">CIBASIC</div>
+          <div class="opt-desc">Confidence intervals for mean, std and var</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">ALPHA =</div>
+          <div class="opt-desc">Sets alpha level for the intervals</div>
+        </div>
+        <div class="opt-item yellow">
+          <div class="opt-key">MU0 =</div>
+          <div class="opt-desc">Parameter for a t-test of the mean</div>
+        </div>
+      </div>
+
+      <div class="code-label">Statement options</div>
+      <div class="options-grid">
+        <div class="opt-item teal">
+          <div class="opt-key">VAR</div>
+          <div class="opt-desc">Variable(s) to analyse</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">HISTOGRAM / NORMAL</div>
+          <div class="opt-desc">Bar chart of distribution with optional bell curve overlay</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">HISTOGRAM / COLOR</div>
+          <div class="opt-desc">Colour of the superimposed normal curve</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">HISTOGRAM / W =</div>
+          <div class="opt-desc">Line width of the normal curve</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">QQPLOT</div>
+          <div class="opt-desc">Higher-quality normal probability plot</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">PROBPLOT</div>
+          <div class="opt-desc">Probability plot for checking normality</div>
+        </div>
+        <div class="opt-item teal">
+          <div class="opt-key">INSET</div>
+          <div class="opt-desc">Displays stats inside the graph. FORMAT = (4.0) controls decimal display</div>
+        </div>
+      </div>
+
+      <div class="code-label">Practical example with histogram</div>
+      <pre><span class="cmt">/* Test normality and visualise distribution of AGE */</span>
+<span class="kw">PROC UNIVARIATE</span> <span class="opt">DATA</span><span class="eq">=</span>MYDATA <span class="opt">NORMAL</span>;
+  <span class="kw">VAR</span> AGE;
+  <span class="kw">HISTOGRAM</span> AGE <span class="opt">/ NORMAL(COLOR</span><span class="eq">=</span><span class="val">BLUE</span> <span class="opt">W</span><span class="eq">=</span><span class="val">2</span><span class="opt">)</span>;
+  <span class="kw">INSET</span> MEAN STD SKEWNESS KURTOSIS <span class="opt">/ FORMAT</span><span class="eq">=</span><span class="val">(6.2)</span>;
+  <span class="kw">QQPLOT</span> AGE;
+<span class="kw">RUN</span>;</pre>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Interpreting output:</strong> If <strong>Skewness ≈ 0</strong> and <strong>Kurtosis ≈ 0</strong>, the data is approximately normal. The normality test p-value (from the <code>NORMAL</code> option) should be <strong>&gt; 0.05</strong> to confirm normality. Reference files: <code>AUNI1.SAS</code>, <code>AUNI2.SAS</code>, <code>AUNI4.SAS</code></p>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">📌</span>
+        <p><strong>PROC MEANS vs PROC UNIVARIATE:</strong> Use <strong>PROC MEANS</strong> for a quick summary table of common stats. Use <strong>PROC UNIVARIATE</strong> when you need normality tests, detailed distribution plots, or outlier identification.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    SAS Study Notes · Chapters 5 &amp; 6 · Matthew Valentine · UWC
+  </div>
+</footer>
+
+</body>
+</html>
